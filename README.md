@@ -21,7 +21,7 @@ SSH는 통신을 암호화하기 때문에 다른 사람이 통신의 내용을 
 
 EC2 인스턴스 역시 SSH를 통해 접속할 수 있습니다. 접속을 위해서 인스턴스 생성 시에 부여받은 비밀 키가 필요합니다. EC2 Instances 페이지 상단의 **Connect** 버튼을 눌러 가이드를 따라하세요.
 
-## 리눅스 기초
+## 리눅스에서 자주 사용되는 명령
 
 아래에 자주 사용하는 리눅스 명령을 모아두었습니다. `man` 명령을 사용하면 다른 명령에 대한 도움말을 표시할 수 있습니다. (예: `man ls`)
 
@@ -73,7 +73,7 @@ EC2 인스턴스 역시 SSH를 통해 접속할 수 있습니다. 접속을 위�
 - `clear`: 터미널 화면의 내용을 비웁니다.
 - `sudo`: 관리자 권한으로 명령을 실행합니다.
 
-### 패키지 및 데몬 관리
+### 패키지 관리
 
 - `apt`: 데비안 계열 리눅스의 패키니 매니저인 패키지를 설치합니다.
 
@@ -163,7 +163,27 @@ $ pm2 start process.yml --name myapp
 
 ### Caddy
 
-Caddy는 [리버스 프록시 기능을 내장](https://caddyserver.com/docs/proxy)하고 있는 웹 서버로, 인증서 등록 및 설치를 자동으로 해주기 때문에 굉장히 편하게 HTTPS 웹 서버를 운영할 수 있습니다. 또한 [Caddyfile](https://caddyserver.com/tutorial/caddyfile)이라는 간단한 문법의 설정 파일을 통해 웹 서버를 설정하도록 하고 있습니다.
+[Caddy](https://caddyserver.com/)는 [리버스 프록시 기능을 내장](https://caddyserver.com/docs/proxy)하고 있는 웹 서버로, 인증서 등록 및 설치를 자동으로 해주기 때문에 굉장히 편하게 HTTPS 웹 서버를 운영할 수 있습니다. 또한 [Caddyfile](https://caddyserver.com/tutorial/caddyfile)이라는 간단한 문법의 설정 파일을 통해 웹 서버를 설정하도록 하고 있습니다. 아래는 리버스 프록시 설정을 한 Caddyfile 예제입니다.
+
+```
+# https://example.com URI로 들어온 요청을 http://localhost:3000 서버에 연결시킴
+# http://example.com 쪽으로 들어온 요청은 https로 리다이렉트
+example.com {
+  proxy / localhost:3000 {
+    # 리버스 프록시에 요청이 어떤 형태(IP, 프로토콜)로 왔는지를
+    # 뒤쪽 서버에 별도의 헤더를 통해 전달
+    transparent
+  }
+}
+
+chat.example.com {
+  proxy / localhost:4000 {
+    transparent
+    # 웹소켓 요청도 전달하기
+    websocket
+  }
+}
+```
 
 Caddyfile을 작성한 뒤에 해당 폴더에서 `caddy` 명령을 통해 Caddy 웹 서버를 실행시킬 수 있습니다. 터미널이 꺼져도 계속 Caddy가 실행되게 하려면 아래의 명령을 실행하면 됩니다.
 
@@ -175,5 +195,4 @@ HTTPS를 사용하려면 먼저 DNS 설정이 되어 있어야 합니다. Route 
 
 ### Reverse Proxy + Express
 
-리버스 프록시를 통해 운영되는 Express 웹 서버가 쿠키를 사용한다면 반드시 trust proxy 옵션을 설정해주어야 합니다. 자세한 사항은 [공식 문서](http://expressjs.com/ko/guide/behind-proxies.html)를 참고해주세요.
-
+리버스 프록시를 통해 운영되는 Express 웹 서버가 IP 추적 기능이나 쿠키를 사용한다면 반드시 trust proxy 옵션을 설정해주어야 합니다. 자세한 사항은 [공식 문서](http://expressjs.com/ko/guide/behind-proxies.html)를 참고해주세요.
